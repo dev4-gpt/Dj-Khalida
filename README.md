@@ -4,6 +4,11 @@
 
 One synthesized kick drum, repeated at different speeds, becomes a beat, a bassline, a chord, and a melody. No samples, no other instruments. Built from an [@thel.ab67](https://www.instagram.com/reel/DeJ2WMajlAk/) reel ("When does a beat become a note?").
 
+## Reference
+
+- **Original reel:** https://www.instagram.com/reel/DeJ2WMajlAk/ (The Lab, @thel.ab67, "When does a beat become a note?", Oct 6, 2026, ~64 sec)
+- **Full breakdown:** [REFERENCES.md](REFERENCES.md) has the reel's structure, its numbers, and how each moment maps to this repo. The video itself stays on Instagram, this repo links to it rather than hosting a copy.
+
 ## Live dashboard
 
 Open `index.html` in any browser (or serve this folder, see below). The dashboard runs itself: a looping 72-second, 7-chapter show with no input needed.
