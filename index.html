@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>One Kick DJ Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      button, [role="button"], select, summary, input:not([type="checkbox"], [type="radio"]) { min-height: 2.25rem; }
+      button { font-family: inherit; }
+
+      :root {
+        color-scheme: light dark;
+        --bg: #f6f1ea;
+        --panel: #fffdf9;
+        --panel-2: #efe8dc;
+        --ink: #1d1912;
+        --muted: #6f6455;
+        --line: #ddd2c0;
+        --accent: #e85d04;
+        --accent-ink: #b34700;
+        --c-beat: #e85d04;
+        --c-bass: #c92a2a;
+        --c-chord: #e8a100;
+        --c-melody: #0b916b;
+        --c-solo: #e85d04;
+        --scope-bg: #171310;
+        --scope-line: #ffb37a;
+        --good: #0b916b;
+        --radius: 14px;
+        --font-display: "Bricolage Grotesque", "Archivo", sans-serif;
+        --font-body: "Archivo", system-ui, sans-serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #131110;
+          --panel: #1d1a17;
+          --panel-2: #26221e;
+          --ink: #f4ede3;
+          --muted: #a99c8b;
+          --line: #38322b;
+          --accent: #ff8c42;
+          --accent-ink: #ffb37a;
+          --c-beat: #ff8c42;
+          --c-bass: #ff6b6b;
+          --c-chord: #ffc94d;
+          --c-melody: #3ecf9e;
+          --c-solo: #ff8c42;
+          --scope-bg: #0b0a09;
+          --scope-line: #ffb37a;
+        }
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; padding: 0; }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 1180px; margin: 0 auto; padding: 18px 16px 40px; }
+
+      /* ---------- top bar ---------- */
+      .topbar {
+        display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px;
+        padding: 12px 16px; background: var(--panel); border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+      .topbar h1 {
+        font-family: var(--font-display); font-weight: 800; font-size: 1.35rem;
+        letter-spacing: -0.01em; margin: 0; line-height: 1.1;
+      }
+      .topbar h1 .thin { font-weight: 500; color: var(--muted); }
+      .live-pill {
+        display: inline-flex; align-items: center; gap: 8px;
+        font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
+        letter-spacing: 0.06em; text-transform: uppercase;
+        border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+        background: var(--panel-2); min-height: 2.25rem;
+      }
+      .live-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--c-bass); flex: none; }
+      .live-dot.on { background: var(--good); animation: pulse 1.6s ease-in-out infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+      .topbar .spacer { flex: 1; }
+      .clock { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); }
+      .btn {
+        font-family: var(--font-body); font-weight: 600; font-size: 0.9rem;
+        border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+        border-radius: 10px; padding: 8px 16px; cursor: pointer; min-height: 2.5rem;
+      }
+      .btn:hover { border-color: var(--accent); }
+      .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+      @media (prefers-color-scheme: dark) { .btn.primary { color: #1d130a; } }
+
+      .sound-banner {
+        margin-top: 12px; display: flex; align-items: center; gap: 10px;
+        background: var(--accent); color: #fff; border-radius: var(--radius);
+        padding: 12px 16px; font-weight: 600; font-size: 0.98rem; cursor: pointer;
+      }
+      @media (prefers-color-scheme: dark) { .sound-banner { color: #1d130a; } }
+      .sound-banner[hidden] { display: none; }
+      .sound-banner .eq { display: inline-flex; gap: 3px; align-items: flex-end; height: 18px; }
+      .sound-banner .eq i { width: 4px; background: currentColor; border-radius: 2px; animation: eq 0.9s ease-in-out infinite; }
+      .sound-banner .eq i:nth-child(1) { height: 8px; }
+      .sound-banner .eq i:nth-child(2) { height: 16px; animation-delay: 0.15s; }
+      .sound-banner .eq i:nth-child(3) { height: 11px; animation-delay: 0.3s; }
+      .sound-banner .eq i:nth-child(4) { height: 17px; animation-delay: 0.45s; }
+      @keyframes eq { 0%,100% { transform: scaleY(0.55); } 50% { transform: scaleY(1); } }
+
+      /* ---------- layout ---------- */
+      .grid-stage { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+      @media (min-width: 900px) { .grid-stage { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); } }
+      .grid-mid { display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+      @media (min-width: 900px) { .grid-mid { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); } }
+      .card {
+        background: var(--panel); border: 1px solid var(--line);
+        border-radius: var(--radius); padding: 18px;
+      }
+      .card h2 {
+        font-family: var(--font-display); font-size: 1.02rem; font-weight: 700;
+        margin: 0 0 4px; letter-spacing: 0.01em;
+      }
+      .card .sub { color: var(--muted); font-size: 0.88rem; margin: 0 0 12px; }
+
+      /* ---------- stage ---------- */
+      .stage-top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 22px; }
+      .big-rate { font-family: var(--font-mono); font-weight: 600; line-height: 0.95; letter-spacing: -0.03em; }
+      .big-rate .num { font-size: clamp(3.4rem, 11vw, 6.2rem); }
+      .big-rate .unit { font-size: clamp(1.1rem, 3.4vw, 1.7rem); color: var(--muted); margin-left: 6px; }
+      .big-note { padding-bottom: 10px; }
+      .big-note .note-name { font-family: var(--font-display); font-weight: 800; font-size: clamp(1.8rem, 6vw, 3rem); line-height: 1; color: var(--accent-ink); }
+      .big-note .note-sub { font-family: var(--font-mono); font-size: 0.82rem; color: var(--muted); margin-top: 4px; }
+      .zone-tag {
+        display: inline-block; font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600;
+        letter-spacing: 0.08em; text-transform: uppercase; border-radius: 999px;
+        padding: 5px 12px; margin: 10px 0 12px; border: 1.5px solid var(--accent); color: var(--accent-ink);
+      }
+      .zone-tag.pitch { border-color: var(--c-melody); color: var(--c-melody); }
+      .zone-tag.blur { border-color: var(--c-chord); color: var(--c-chord); }
+      canvas.scope { display: block; width: 100%; height: 150px; background: var(--scope-bg); border-radius: 10px; }
+      .caption { font-size: 1.02rem; margin: 14px 0 0; max-width: 62ch; }
+      .caption strong { color: var(--accent-ink); }
+
+      /* beat dots for the track section */
+      .beat-dots { display: none; gap: 10px; margin-top: 12px; align-items: center; }
+      .beat-dots.show { display: flex; }
+      .beat-dots .bd { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); background: transparent; }
+      .beat-dots .bd.hit { background: var(--c-beat); border-color: var(--c-beat); }
+      .beat-dots .bar-label { font-family: var(--font-mono); font-size: 0.85rem; color: var(--muted); margin-left: 6px; }
+
+      /* frequency ruler */
+      .ruler { margin-top: 16px; }
+      .ruler-track { position: relative; height: 44px; border-radius: 8px; background: var(--panel-2); overflow: visible; }
+      .ruler-zone { position: absolute; top: 0; bottom: 0; border-radius: 8px; }
+      .ruler-zone.rhythm { background: color-mix(in srgb, var(--c-beat) 16%, transparent); left: 0; }
+      .ruler-zone.blur { background: color-mix(in srgb, var(--c-chord) 20%, transparent); }
+      .ruler-zone.pitchz { background: color-mix(in srgb, var(--c-melody) 13%, transparent); right: 0; border-radius: 0 8px 8px 0; }
+      .ruler-thresh { position: absolute; top: -4px; bottom: -4px; width: 2px; background: var(--c-bass); }
+      .ruler-thresh span {
+        position: absolute; top: -19px; left: 50%; transform: translateX(-50%); white-space: nowrap;
+        font-family: var(--font-mono); font-size: 0.68rem; font-weight: 600; color: var(--c-bass);
+      }
+      .ruler-marker {
+        position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%;
+        transform: translate(-50%, -50%); border: 2.5px solid var(--panel); z-index: 3;
+        transition: left 0.18s linear;
+      }
+      .ruler-ticks { position: relative; height: 20px; margin-top: 4px; }
+      .ruler-ticks span { position: absolute; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+      .ruler-zonelabels { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); margin-top: 2px; }
+
+      /* ---------- chapters ---------- */
+      .chapter-list { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+      .chapter {
+        display: block; width: 100%; text-align: left; border: 1px solid var(--line);
+        background: var(--panel); border-radius: 10px; padding: 10px 12px; cursor: pointer;
+        position: relative; overflow: hidden; min-height: 3rem; color: var(--ink);
+      }
+      .chapter .fill { position: absolute; inset: 0; width: 0%; background: color-mix(in srgb, var(--accent) 14%, transparent); z-index: 0; }
+      .chapter .row { position: relative; z-index: 1; display: flex; align-items: baseline; gap: 10px; }
+      .chapter .n { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); flex: none; }
+      .chapter .t { font-weight: 600; font-size: 0.95rem; }
+      .chapter .d { font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); margin-left: auto; flex: none; }
+      .chapter.active { border-color: var(--accent); }
+      .chapter.done .t { color: var(--muted); }
+
+      /* ---------- voices ---------- */
+      .voice-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+      .voice {
+        flex: 1 1 150px; border: 1px solid var(--line); border-top: 4px solid var(--vc, var(--accent));
+        border-radius: 10px; padding: 12px 14px; background: var(--panel); min-width: 140px;
+      }
+      .voice .role { font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: var(--vc, var(--accent)); }
+      .voice .hz { font-family: var(--font-mono); font-size: 1.55rem; font-weight: 600; margin-top: 2px; }
+      .voice .hz small { font-size: 0.8rem; color: var(--muted); }
+      .voice .meta { font-family: var(--font-mono); font-size: 0.76rem; color: var(--muted); margin-top: 3px; line-height: 1.65; }
+      .voice .meta b { color: var(--ink); font-weight: 600; }
+      .voices-empty { color: var(--muted); font-family: var(--font-mono); font-size: 0.85rem; margin-top: 14px; }
+
+      /* ---------- math ---------- */
+      .math-rows { display: flex; flex-direction: column; gap: 0; }
+      .math-row { padding: 11px 0; border-bottom: 1px dashed var(--line); }
+      .math-row:last-child { border-bottom: none; }
+      .math-row .formula { font-family: var(--font-mono); font-size: 1rem; font-weight: 600; }
+      .math-row .formula .val { color: var(--accent-ink); }
+      .math-row .why { font-size: 0.88rem; color: var(--muted); margin-top: 2px; }
+      .const-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 0.92rem; }
+      .const-table td { padding: 7px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+      .const-table tr:last-child td { border-bottom: none; }
+      .const-table td.k { font-family: var(--font-mono); font-weight: 600; white-space: nowrap; width: 34%; }
+      .const-table td.v { color: var(--muted); }
+
+      canvas.spec { display: block; width: 100%; height: 190px; background: var(--scope-bg); border-radius: 10px; }
+      .spec-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-family: var(--font-mono); font-size: 0.75rem; color: var(--muted); }
+      .spec-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; }
+
+      /* ---------- piano ---------- */
+      .piano { position: relative; height: 92px; margin-top: 8px; user-select: none; }
+      .piano .whites { display: flex; height: 100%; gap: 1px; }
+      .piano .wk { flex: 1; background: var(--panel-2); border: 1px solid var(--line); border-radius: 0 0 5px 5px; position: relative; }
+      .piano .wk span { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%); font-family: var(--font-mono); font-size: 0.58rem; color: var(--muted); }
+      .piano .bk { position: absolute; top: 0; height: 58%; background: #241f1a; border-radius: 0 0 4px 4px; z-index: 2; transform: translateX(-50%); }
+      @media (prefers-color-scheme: dark) { .piano .bk { background: #060505; border: 1px solid #000; } }
+      .piano .wk.lit, .piano .bk.lit { background: var(--lit, var(--accent)); }
+      .piano .wk.lit span { color: var(--ink); font-weight: 700; }
+
+      footer.note { margin-top: 16px; color: var(--muted); font-size: 0.86rem; max-width: 78ch; }
+      footer.note b { color: var(--ink); }
+
+      @media (prefers-reduced-motion: reduce) {
+        .live-dot.on, .sound-banner .eq i { animation: none; }
+        .ruler-marker { transition: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header class="topbar">
+        <h1>One Kick <span class="thin">DJ Dashboard</span></h1>
+        <span class="live-pill"><span class="live-dot" id="liveDot"></span><span id="liveText">Auto-DJ running</span></span>
+        <span class="spacer"></span>
+        <span class="clock" id="showClock">loop 0:00 / 1:12</span>
+        <button class="btn" id="pauseBtn" type="button" aria-label="Pause the show">Pause</button>
+        <button class="btn" id="restartBtn" type="button" aria-label="Restart the show">Restart</button>
+        <button class="btn primary" id="soundBtn" type="button" aria-label="Turn sound on or off">Sound: off</button>
+      </header>
+
+      <div class="sound-banner" id="soundBanner" role="button" tabindex="0" aria-label="Tap to turn the sound on">
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span>The show is already running. Tap anywhere on this page and the sound joins in. Browsers just need one tap before audio is allowed.</span>
+      </div>
+
+      <div class="grid-stage">
+        <section class="card" aria-label="Stage">
+          <div class="stage-top">
+            <div class="big-rate"><span class="num" id="bigRate">2</span><span class="unit" id="bigUnit">hits / sec</span></div>
+            <div class="big-note">
+              <div class="note-name" id="bigNote">a beat</div>
+              <div class="note-sub" id="bigNoteSub">too slow to be a pitch</div>
+            </div>
+          </div>
+          <span class="zone-tag" id="zoneTag">Rhythm: you can count it</span>
+          <canvas class="scope" id="scope" width="900" height="300" aria-label="Live waveform of the kick stream"></canvas>
+          <div class="beat-dots" id="beatDots" aria-hidden="true">
+            <span class="bd"></span><span class="bd"></span><span class="bd"></span><span class="bd"></span>
+            <span class="bar-label" id="barLabel">bar 1 of 8</span>
+          </div>
+          <p class="caption" id="caption"></p>
+
+          <div class="ruler" aria-label="Frequency ruler from 1 to 1000 hertz">
+            <div class="ruler-track" id="rulerTrack">
+              <div class="ruler-zone rhythm" id="zoneRhythm"></div>
+              <div class="ruler-zone blur" id="zoneBlur"></div>
+              <div class="ruler-zone pitchz" id="zonePitch"></div>
+              <div class="ruler-thresh" id="threshMark"><span>pitch begins &#8776;20 Hz</span></div>
+            </div>
+            <div class="ruler-ticks" id="rulerTicks"></div>
+            <div class="ruler-zonelabels"><span>Rhythm</span><span>The blur</span><span>Pitch: bass &#8594; melody</span></div>
+          </div>
+        </section>
+
+        <nav class="card" aria-label="Show chapters">
+          <h2>The show, on autopilot</h2>
+          <p class="sub">Seven chapters, about 72 seconds, then it loops. It runs by itself; tap a chapter only if you want to skip ahead.</p>
+          <ol class="chapter-list" id="chapterList"></ol>
+        </nav>
+      </div>
+
+      <section aria-label="Live voices">
+        <div class="voice-grid" id="voiceGrid"></div>
+      </section>
+
+      <div class="grid-mid">
+        <section class="card" aria-label="Spectrum analyzer">
+          <h2>Spectrum: where the energy sits</h2>
+          <p class="sub">A pitched kick stream piles its energy onto one frequency and its harmonics (2&times;, 3&times;, 4&times; that frequency). Watch the peaks land exactly on the voice frequencies above.</p>
+          <canvas class="spec" id="spec" width="900" height="380"></canvas>
+          <div class="spec-legend" id="specLegend"></div>
+        </section>
+
+        <section class="card" aria-label="The math">
+          <h2>The math, live</h2>
+          <p class="sub">Every number below is computed from the stream playing right now.</p>
+          <div class="math-rows">
+            <div class="math-row">
+              <div class="formula">T = 1 / f = <span class="val" id="mathPeriod">500 ms</span></div>
+              <div class="why">The period: time between one kick and the next. Shrink it far enough and rhythm turns into pitch.</div>
+            </div>
+            <div class="math-row">
+              <div class="formula">n = 12 &middot; log&#8322;(f / 440) = <span class="val" id="mathSemi">way below A4</span></div>
+              <div class="why">Semitones from A4 (440 Hz), the tuning standard. Every +12 semitones doubles the frequency: one octave.</div>
+            </div>
+            <div class="math-row">
+              <div class="formula">tempo = f &times; 60 = <span class="val" id="mathBpm">120 BPM</span></div>
+              <div class="why">A tempo is just a frequency too slow to hear as a note. 2 hits/sec and 120 BPM are the same statement.</div>
+            </div>
+          </div>
+          <table class="const-table">
+            <tr><td class="k">&#8776; 20 Hz</td><td class="v">The fusion threshold. Below it you count separate hits; above it the ear reports a pitch instead.</td></tr>
+            <tr><td class="k">&times; 2</td><td class="v">An octave. 55 &#8594; 110 &#8594; 220 &#8594; 440 Hz is the same note, A, four times.</td></tr>
+            <tr><td class="k">3 : 2</td><td class="v">A perfect fifth. Two streams in this ratio sound like a power chord.</td></tr>
+            <tr><td class="k">4 : 5 : 6</td><td class="v">A major chord. Consonance is small whole-number ratios between frequencies.</td></tr>
+          </table>
+        </section>
+      </div>
+
+      <section class="card" style="margin-top:14px" aria-label="Piano strip">
+        <h2>Where the voices land on a piano</h2>
+        <p class="sub">A1 (55 Hz) to A5 (880 Hz). Keys light up in each voice's color when a stream is running at that note.</p>
+        <div class="piano" id="piano"></div>
+      </section>
+
+      <footer class="note">
+        <b>One sound source, start to finish:</b> a single synthesized kick drum (a sine whose pitch dives from 160 Hz to 48 Hz, with a short click on the attack), repeated at different rates. Nothing else is sampled or synthesized. In the final track the bass plays one octave above the written root so laptop and phone speakers, which cannot reproduce 44 to 65 Hz, still let you hear it.
+      </footer>
+    </div>
+
+  <script>
+  "use strict";
+  /* ================================================================
+     ONE KICK DJ
+     One synthesized kick (pitch dive 160 -> 48 Hz). Repeated slowly
+     it is a beat; repeated at 20+ hits/sec the ear hears a pitch at
+     exactly the repetition rate. Every voice on this page is that
+     kick, looped at a different rate.
+     ================================================================ */
+
+  /* ---------- math helpers ---------- */
+  var NOTE_NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  function freqToNote(f) {
+    var m = 69 + 12 * Math.log2(f / 440);
+    var r = Math.round(m);
+    var name = NOTE_NAMES[((r % 12) + 12) % 12] + (Math.floor(r / 12) - 1);
+    return { name: name, cents: Math.round((m - r) * 100), midiFloat: m };
+  }
+  function periodStr(f) {
+    var ms = 1000 / f;
+    if (ms >= 100) return Math.round(ms) + " ms";
+    if (ms >= 10) return ms.toFixed(1) + " ms";
+    return ms.toFixed(2) + " ms";
+  }
+  function ratioStr(x) {
+    var cands = [[1,1],[9,8],[6,5],[5,4],[4,3],[7,5],[3,2],[5,3],[7,4],[2,1],[9,4],[5,2],[3,1],[7,2],[4,1]];
+    for (var i = 0; i < cands.length; i++) {
+      if (Math.abs(x - cands[i][0] / cands[i][1]) < 0.02) return cands[i][0] + " : " + cands[i][1];
+    }
+    return "\u00D7 " + x.toFixed(2);
+  }
+  function fmtHz(f) {
+    if (f < 10) return (Math.round(f * 10) / 10).toString();
+    if (f < 100) return (Math.round(f * 10) / 10).toString();
+    return Math.round(f).toString();
+  }
+  function logPos(f) { /* 1 Hz .. 1000 Hz -> 0..1 */
+    return Math.min(1, Math.max(0, Math.log10(Math.max(1, f)) / 3));
+  }
+
+  /* ---------- the kick ---------- */
+  var KICK_DUR = 0.28;
+  var kickCache = {};
+  function kickArray(sr) {
+    if (kickCache[sr]) return kickCache[sr];
+    var n = Math.floor(KICK_DUR * sr), a = new Float32Array(n), i, t;
+    for (i = 0; i < n; i++) {
+      t = i / sr;
+      /* integral of freq(t) = 48 + 112*exp(-28t)  ->  48t + 4*(1-exp(-28t)) cycles */
+      var cycles = 48 * t + 4 * (1 - Math.exp(-28 * t));
+      a[i] = Math.sin(2 * Math.PI * cycles) * Math.exp(-11 * t)
+           + 0.4 * Math.exp(-220 * t) * Math.sin(2 * Math.PI * 900 * t);
+    }
+    kickCache[sr] = a;
+    return a;
+  }
+  /* one period-aware loop buffer of the kick repeated at `rate` Hz */
+  var trainCache = {};
+  function trainBuffer(ctx, rate) {
+    var key = rate.toFixed(2);
+    if (trainCache[key]) return trainCache[key];
+    var sr = ctx.sampleRate, kick = kickArray(sr);
+    var periods = Math.max(1, Math.round(rate * 2));       /* ~2 seconds */
+    var len = Math.max(1, Math.round(periods * sr / rate));
+    var buf = ctx.createBuffer(1, len, sr);
+    var d = buf.getChannelData(0);
+    var step = sr / rate, pos = 0, i, j, idx;
+    for (i = 0; i < periods; i++) {
+      idx = Math.round(pos);
+      for (j = 0; j < kick.length && idx + j < len; j++) d[idx + j] += kick[j];
+      pos += step;
+    }
+    trainCache[key] = buf;
+    return buf;
+  }
+
+  /* ---------- audio engine ---------- */
+  var AC = window.AudioContext || window.webkitAudioContext;
+  var actx = null, master = null, analyser = null, soundOn = false;
+  var slots = {};   /* slotName -> {src, gainNode, rate} */
+
+  function initAudio() {
+    if (actx || !AC) return;
+    actx = new AC();
+    var comp = actx.createDynamicsCompressor();
+    comp.threshold.value = -14; comp.ratio.value = 6;
+    master = actx.createGain(); master.gain.value = 0.9;
+    analyser = actx.createAnalyser();
+    analyser.fftSize = 4096; analyser.smoothingTimeConstant = 0.55;
+    master.connect(analyser); analyser.connect(comp); comp.connect(actx.destination);
+    applyVoices(currentVoices);
+  }
+  function setSlot(slot, rate, gain) {
+    if (!actx) return;
+    var cur = slots[slot];
+    if (cur && Math.abs(cur.rate - rate) < 0.01) {
+      cur.gainNode.gain.setTargetAtTime(gain, actx.currentTime, 0.05);
+      return;
+    }
+    if (cur) {
+      cur.gainNode.gain.setTargetAtTime(0, actx.currentTime, 0.04);
+      (function (old) { setTimeout(function () { try { old.src.stop(); } catch (e) {} }, 220); })(cur);
+      delete slots[slot];
+    }
+    var src = actx.createBufferSource();
+    src.buffer = trainBuffer(actx, rate); src.loop = true;
+    var g = actx.createGain(); g.gain.value = 0;
+    g.gain.setTargetAtTime(gain, actx.currentTime, 0.06);
+    src.connect(g); g.connect(master); src.start();
+    slots[slot] = { src: src, gainNode: g, rate: rate };
+  }
+  function clearSlot(slot) {
+    if (!actx || !slots[slot]) return;
+    var cur = slots[slot];
+    cur.gainNode.gain.setTargetAtTime(0, actx.currentTime, 0.04);
+    setTimeout(function () { try { cur.src.stop(); } catch (e) {} }, 220);
+    delete slots[slot];
+  }
+  function applyVoices(voices) {
+    if (!actx) return;
+    var wanted = {};
+    voices.forEach(function (v) { wanted[v.slot] = v; setSlot(v.slot, v.rate, v.gain); });
+    Object.keys(slots).forEach(function (s) { if (!wanted[s]) clearSlot(s); });
+  }
+  function markSoundOn() {
+    soundOn = true;
+    document.getElementById("soundBanner").hidden = true;
+    document.getElementById("soundBtn").textContent = "Sound: on";
+    document.getElementById("liveDot").classList.add("on");
+    document.getElementById("liveText").textContent = "Auto-DJ live, sound on";
+  }
+  function enableSound() {
+    initAudio();
+    if (!actx) return;
+    if (actx.state === "running") { markSoundOn(); return; }
+    var p = actx.resume();
+    if (p && p.then) p.then(function () { if (actx.state === "running") markSoundOn(); });
+    setTimeout(function () { if (actx && actx.state === "running") markSoundOn(); }, 150);
+  }
+  function disableSound() {
+    if (actx) actx.suspend();
+    soundOn = false;
+    document.getElementById("soundBtn").textContent = "Sound: off";
+    document.getElementById("liveDot").classList.remove("on");
+    document.getElementById("liveText").textContent = "Auto-DJ running, muted";
+  }
+
+  /* ---------- the track: Am - F - C - G, 120 BPM ---------- */
+  var PROG = [
+    { name: "Am", root: "A", bass: 110.00,
+      chord: [[220.00, "A3"], [261.63, "C4"], [329.63, "E4"]],
+      mel: [[440.00, "A4"], [523.25, "C5"], [659.25, "E5"], [523.25, "C5"]] },
+    { name: "F", root: "F", bass: 87.31,
+      chord: [[174.61, "F3"], [220.00, "A3"], [261.63, "C4"]],
+      mel: [[349.23, "F4"], [440.00, "A4"], [523.25, "C5"], [440.00, "A4"]] },
+    { name: "C", root: "C", bass: 130.81,
+      chord: [[261.63, "C4"], [329.63, "E4"], [392.00, "G4"]],
+      mel: [[523.25, "C5"], [659.25, "E5"], [783.99, "G5"], [659.25, "E5"]] },
+    { name: "G", root: "G", bass: 98.00,
+      chord: [[196.00, "G3"], [246.94, "B3"], [293.66, "D4"]],
+      mel: [[392.00, "G4"], [493.88, "B4"], [587.33, "D5"], [783.99, "G5"]] }
+  ];
+  function trackVoices(t) {
+    var barFloat = t / 2;                       /* 120 BPM: a bar is 2 s */
+    var bar = Math.min(7, Math.floor(barFloat));
+    var beatInBar = Math.floor((t - bar * 2) / 0.5);
+    var p = PROG[bar % 4];
+    var vs = [{ slot: "beat", role: "Beat", roleClass: "beat", rate: 2, gain: 0.8, noteLabel: "4 on the floor" }];
+    if (bar >= 1) vs.push({ slot: "bass", role: "Bass", roleClass: "bass", rate: p.bass, gain: 0.5, noteLabel: freqToNote(p.bass).name + " root" });
+    if (bar >= 2) {
+      p.chord.forEach(function (c, i) {
+        vs.push({ slot: "chord" + i, role: "Chord", roleClass: "chord", rate: c[0], gain: 0.15, noteLabel: c[1] });
+      });
+      var m = p.mel[beatInBar];
+      vs.push({ slot: "melody", role: "Melody", roleClass: "melody", rate: m[0], gain: 0.3, noteLabel: m[1] });
+    }
+    return vs;
+  }
+
+  /* ---------- the show ---------- */
+  function soloVoice(rate, gain) {
+    return [{ slot: "solo", role: "Kick stream", roleClass: "solo", rate: rate, gain: gain || 0.75, noteLabel: "" }];
+  }
+  function stepVoices(steps) {
+    return function (t) {
+      var acc = 0;
+      for (var i = 0; i < steps.length; i++) {
+        if (t < acc + steps[i][1]) return soloVoice(steps[i][0]);
+        acc += steps[i][1];
+      }
+      return soloVoice(steps[steps.length - 1][0]);
+    };
+  }
+  var SEGMENTS = [
+    { title: "One kick, as a beat", dur: 8, kind: "rate",
+      voices: function () { return soloVoice(2, 0.85); },
+      caption: "One synthesized kick: a sine whose pitch dives from 160 Hz to 48 Hz in a single thump. Played <strong>twice a second</strong>, it is a beat. Your brain counts it: one, two, three, four." },
+    { title: "Speed it up", dur: 10, kind: "rate",
+      voices: stepVoices([[3, 2.5], [4, 2.5], [7, 2.5], [14, 2.5]]),
+      caption: "Same kick, faster: <strong>3, 4, 7, then 14 hits a second</strong>. Still rhythm, but counting is getting to be hard work. Nothing about the sound itself has changed, only the rate." },
+    { title: "The blur", dur: 10, kind: "rate",
+      voices: stepVoices([[21, 3.34], [27, 3.33], [34, 3.33]]),
+      caption: "Around <strong>20 hits a second</strong>, counting breaks down. The gaps between hits fuse, and your ear starts reporting a pitch instead of a rhythm: 21, 27, 34 Hz, a flutter turning into a growl." },
+    { title: "Now it is a note", dur: 12, kind: "rate",
+      voices: stepVoices([[55, 3], [110, 3], [220, 3], [440, 3]]),
+      caption: "At <strong>55 hits a second</strong> it is unmistakably a note: A1. Double the rate and you get the same note one octave up: 110 is A2, 220 is A3, <strong>440 is A4</strong>, the A that orchestras tune to." },
+    { title: "Two kicks: a fifth", dur: 8, kind: "multi",
+      voices: function () {
+        return [
+          { slot: "v1", role: "Kick stream 1", roleClass: "solo", rate: 110, gain: 0.45, noteLabel: "A2" },
+          { slot: "v2", role: "Kick stream 2", roleClass: "melody", rate: 165, gain: 0.45, noteLabel: "E3 (just)" }
+        ];
+      },
+      caption: "Add a second stream at <strong>165 Hz</strong>. 165 / 110 = <strong>3 : 2</strong>, a perfect fifth. Two rhythms locked in a 3:2 ratio become the interval behind every rock power chord." },
+    { title: "Three kicks: a chord", dur: 8, kind: "multi",
+      voices: function () {
+        return [
+          { slot: "v1", role: "Kick stream 1", roleClass: "solo", rate: 220, gain: 0.32, noteLabel: "A3" },
+          { slot: "v2", role: "Kick stream 2", roleClass: "chord", rate: 275, gain: 0.32, noteLabel: "C#4 (just)" },
+          { slot: "v3", role: "Kick stream 3", roleClass: "melody", rate: 330, gain: 0.32, noteLabel: "E4 (just)" }
+        ];
+      },
+      caption: "Three streams at <strong>220, 275 and 330 Hz</strong> stand in a <strong>4 : 5 : 6</strong> ratio: a major chord, A, C#, E. That is what consonance is: frequencies in small whole-number ratios." },
+    { title: "The full track", dur: 16, kind: "track",
+      voices: trackVoices,
+      caption: "Everything at once, still only that one kick. The beat is the kick at <strong>2 Hz</strong>, the bass is the kick looped at the chord root, the chords are three looped rates, the melody rides on top. <strong>Am, F, C, G at 120 BPM</strong>." }
+  ];
+  var TOTAL = SEGMENTS.reduce(function (a, s) { return a + s.dur; }, 0);
+  var currentVoices = SEGMENTS[0].voices(0);
+  var currentSegIdx = 0;
+</script>
+  <script>
+  "use strict";
+  /* ---------- DOM refs ---------- */
+  function $(id) { return document.getElementById(id); }
+  var bigRate = $("bigRate"), bigUnit = $("bigUnit"), bigNote = $("bigNote"),
+      bigNoteSub = $("bigNoteSub"), zoneTag = $("zoneTag"), captionEl = $("caption"),
+      scope = $("scope"), spec = $("spec"), voiceGrid = $("voiceGrid"),
+      chapterList = $("chapterList"), rulerTrack = $("rulerTrack"),
+      beatDotsEl = $("beatDots"), barLabel = $("barLabel"),
+      mathPeriod = $("mathPeriod"), mathSemi = $("mathSemi"), mathBpm = $("mathBpm"),
+      showClock = $("showClock"), specLegend = $("specLegend"), pianoEl = $("piano");
+  var scopeCtx = scope.getContext("2d"), specCtx = spec.getContext("2d");
+  var ROLE_COLORS = { beat: "--c-beat", bass: "--c-bass", chord: "--c-chord", melody: "--c-melody", solo: "--c-solo" };
+  function roleColor(rc) { return getComputedStyle(document.documentElement).getPropertyValue(ROLE_COLORS[rc] || "--c-solo").trim(); }
+
+  /* ---------- build chapters ---------- */
+  var chapterEls = [];
+  SEGMENTS.forEach(function (s, i) {
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "chapter"; b.setAttribute("aria-label", "Jump to chapter " + (i + 1) + ": " + s.title);
+    b.innerHTML = '<span class="fill"></span><span class="row"><span class="n">0' + (i + 1) + '</span>' +
+      '<span class="t"></span><span class="d">' + s.dur + 's</span></span>';
+    b.querySelector(".t").textContent = s.title;
+    b.addEventListener("click", function () { jumpTo(i); });
+    li.appendChild(b); chapterList.appendChild(li); chapterEls.push(b);
+  });
+
+  /* ---------- build ruler ---------- */
+  (function () {
+    $("zoneRhythm").style.width = (logPos(20) * 100) + "%";
+    var zb = $("zoneBlur"); zb.style.left = (logPos(20) * 100) + "%"; zb.style.width = ((logPos(40) - logPos(20)) * 100) + "%";
+    $("zonePitch").style.left = (logPos(40) * 100) + "%";
+    $("threshMark").style.left = (logPos(20) * 100) + "%";
+    var ticks = [[1, "1"], [2, "2"], [5, "5"], [10, "10"], [20, "20"], [55, "55 A1"], [110, "110 A2"], [220, "220 A3"], [440, "440 A4"], [880, "880 A5"]];
+    var rt = $("rulerTicks");
+    ticks.forEach(function (tk) {
+      var s = document.createElement("span");
+      s.style.left = (logPos(tk[0]) * 100) + "%"; s.textContent = tk[1];
+      rt.appendChild(s);
+    });
+  })();
+  var rulerMarkers = {};
+  function updateRuler(voices) {
+    var seen = {};
+    voices.forEach(function (v) {
+      var key = v.slot;
+      seen[key] = true;
+      var m = rulerMarkers[key];
+      if (!m) {
+        m = document.createElement("div"); m.className = "ruler-marker";
+        rulerTrack.appendChild(m); rulerMarkers[key] = m;
+      }
+      m.style.left = (logPos(v.rate) * 100) + "%";
+      m.style.background = roleColor(v.roleClass);
+    });
+    Object.keys(rulerMarkers).forEach(function (k) {
+      if (!seen[k]) { rulerMarkers[k].remove(); delete rulerMarkers[k]; }
+    });
+  }
+
+  /* ---------- build piano (A1..A5) ---------- */
+  var pianoKeys = {};   /* midi -> element */
+  (function () {
+    var whites = document.createElement("div"); whites.className = "whites";
+    pianoEl.appendChild(whites);
+    var seq = ["A", "B", "C", "D", "E", "F", "G"];
+    var whiteMidis = [];
+    var midi = 33; /* A1 */
+    var nameIdx = 0;
+    while (midi <= 81) { /* A5 = 81 */
+      whiteMidis.push({ midi: midi, name: seq[nameIdx % 7] });
+      midi += (seq[nameIdx % 7] === "B" || seq[nameIdx % 7] === "E") ? 1 : 2;
+      if (seq[nameIdx % 7] === "B") { /* next octave label handled by name alone */ }
+      nameIdx++;
+    }
+    var wkEls = [];
+    whiteMidis.forEach(function (w, i) {
+      var d = document.createElement("div"); d.className = "wk";
+      if (w.name === "A" || w.name === "C") {
+        var oct = Math.floor(w.midi / 12) - 1;
+        var sp = document.createElement("span"); sp.textContent = w.name + oct; d.appendChild(sp);
+      }
+      whites.appendChild(d); wkEls.push(d); pianoKeys[w.midi] = d;
+    });
+    /* black keys sit between a white key and the next when the step is 2 semitones */
+    whiteMidis.forEach(function (w, i) {
+      if (i >= whiteMidis.length - 1) return;
+      if (whiteMidis[i + 1].midi - w.midi === 2) {
+        var bk = document.createElement("div"); bk.className = "bk";
+        var frac = (i + 1) / whiteMidis.length;
+        bk.style.left = (frac * 100) + "%";
+        bk.style.width = "calc(" + (100 / whiteMidis.length) * 0.62 + "% )";
+        pianoEl.appendChild(bk); pianoKeys[w.midi + 1] = bk;
+      }
+    });
+  })();
+  function updatePiano(voices) {
+    Object.keys(pianoKeys).forEach(function (k) {
+      pianoKeys[k].classList.remove("lit"); pianoKeys[k].style.removeProperty("--lit");
+    });
+    voices.forEach(function (v) {
+      if (v.rate < 40) return;
+      var midi = Math.round(freqToNote(v.rate).midiFloat);
+      var el = pianoKeys[midi];
+      if (el) { el.classList.add("lit"); el.style.setProperty("--lit", roleColor(v.roleClass)); }
+    });
+  }
+
+  /* ---------- voices panel ---------- */
+  var lastVoiceKey = "";
+  function renderVoices(voices) {
+    var key = voices.map(function (v) { return v.slot + ":" + v.rate.toFixed(1); }).join("|");
+    if (key === lastVoiceKey) return;
+    lastVoiceKey = key;
+    voiceGrid.innerHTML = "";
+    var base = Math.min.apply(null, voices.map(function (v) { return v.rate; }));
+    voices.forEach(function (v) {
+      var note = freqToNote(v.rate);
+      var card = document.createElement("div"); card.className = "voice";
+      card.style.setProperty("--vc", roleColor(v.roleClass));
+      var ratioLine = voices.length > 1
+        ? 'ratio to lowest <b>' + ratioStr(v.rate / base) + '</b>'
+        : 'the only voice right now';
+      var noteLine = v.rate >= 40
+        ? 'note <b>' + (v.noteLabel || note.name) + '</b>' + (Math.abs(note.cents) >= 8 ? ' (' + (note.cents > 0 ? "+" : "") + note.cents + ' cents)' : '')
+        : 'note <b>none, too slow</b>';
+      card.innerHTML = '<div class="role"></div><div class="hz">' + fmtHz(v.rate) + ' <small>Hz</small></div>' +
+        '<div class="meta">' + noteLine + '<br>period <b>' + periodStr(v.rate) + '</b><br>' + ratioLine + '</div>';
+      card.querySelector(".role").textContent = v.role + (v.noteLabel && v.roleClass !== "solo" && v.rate < 40 ? "" : "");
+      voiceGrid.appendChild(card);
+    });
+    /* spectrum legend */
+    specLegend.innerHTML = "";
+    voices.forEach(function (v) {
+      var s = document.createElement("span");
+      s.innerHTML = '<i style="background:' + roleColor(v.roleClass) + '"></i>' + v.role + " " + fmtHz(v.rate) + " Hz";
+      specLegend.appendChild(s);
+    });
+  }
+
+  /* ---------- waveform: real analyser, or math simulation before sound is on ---------- */
+  var simKick = kickArray(44100);
+  function simSample(tAbs, voices) {
+    var s = 0;
+    for (var i = 0; i < voices.length; i++) {
+      var v = voices[i];
+      var phase = (tAbs * v.rate) % 1;
+      var dt = phase / v.rate;
+      var idx = Math.floor(dt * 44100);
+      if (idx < simKick.length) s += simKick[idx] * v.gain;
+    }
+    return s;
+  }
+  var tdArr = null, fdArr = null;
+  function drawScope(nowSec, voices) {
+    var W = scope.width, H = scope.height;
+    scopeCtx.clearRect(0, 0, W, H);
+    scopeCtx.strokeStyle = "rgba(255,255,255,0.14)"; scopeCtx.lineWidth = 1;
+    scopeCtx.beginPath(); scopeCtx.moveTo(0, H / 2); scopeCtx.lineTo(W, H / 2); scopeCtx.stroke();
+    scopeCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue("--scope-line").trim() || "#ffb37a";
+    scopeCtx.lineWidth = 2.4; scopeCtx.beginPath();
+    var winSec = 0.6, i, x, t, y;
+    if (soundOn && analyser) {
+      if (!tdArr) tdArr = new Uint8Array(analyser.fftSize);
+      analyser.getByteTimeDomainData(tdArr);
+      var step = Math.floor(tdArr.length / W);
+      for (i = 0; i < W; i++) {
+        y = (tdArr[i * step] / 255) * H;
+        x = i;
+        if (i === 0) scopeCtx.moveTo(x, y); else scopeCtx.lineTo(x, y);
+      }
+    } else {
+      for (i = 0; i < W; i++) {
+        t = nowSec - (W - i) / W * winSec;
+        y = H / 2 - simSample(t, voices) * H * 0.42;
+        x = i;
+        if (i === 0) scopeCtx.moveTo(x, y); else scopeCtx.lineTo(x, y);
+      }
+    }
+    scopeCtx.stroke();
+  }
+  function drawSpec(voices) {
+    var W = spec.width, H = spec.height;
+    specCtx.clearRect(0, 0, W, H);
+    var fMin = 20, fMax = 1200;
+    function fx(f) { return (Math.log10(f / fMin) / Math.log10(fMax / fMin)) * W; }
+    /* gridlines + labels */
+    specCtx.font = "20px 'IBM Plex Mono', monospace";
+    [55, 110, 220, 440, 880].forEach(function (f) {
+      var x = fx(f);
+      specCtx.strokeStyle = "rgba(255,255,255,0.12)";
+      specCtx.beginPath(); specCtx.moveTo(x, 0); specCtx.lineTo(x, H - 26); specCtx.stroke();
+      specCtx.fillStyle = "rgba(255,255,255,0.55)";
+      specCtx.fillText(f + "", x + 5, H - 6);
+    });
+    if (soundOn && analyser) {
+      if (!fdArr) fdArr = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(fdArr);
+      var sr = actx.sampleRate;
+      specCtx.fillStyle = "rgba(255,179,122,0.85)";
+      var bars = 110;
+      for (var i = 0; i < bars; i++) {
+        var f0 = fMin * Math.pow(fMax / fMin, i / bars);
+        var bin = Math.max(1, Math.round(f0 / (sr / 2) * fdArr.length));
+        var val = fdArr[bin] / 255;
+        var h = val * (H - 40);
+        specCtx.fillRect(fx(f0), H - 26 - h, Math.max(2, W / bars - 1.5), h);
+      }
+    } else {
+      /* sound off: show exactly where each voice's energy will sit */
+      voices.forEach(function (v) {
+        if (v.rate < fMin) return;
+        for (var hN = 1; hN <= 4; hN++) {
+          var f = v.rate * hN;
+          if (f > fMax) break;
+          var hgt = (H - 60) * v.gain * (1 / hN) * 0.9;
+          specCtx.fillStyle = roleColor(v.roleClass);
+          specCtx.globalAlpha = 0.9;
+          specCtx.fillRect(fx(f) - 3, H - 26 - hgt, 6, hgt);
+        }
+      });
+      specCtx.globalAlpha = 1;
+      specCtx.fillStyle = "rgba(255,255,255,0.6)";
+      specCtx.font = "21px 'Archivo', sans-serif";
+      specCtx.fillText("Sound is off: these markers show where each voice's energy sits.", 16, 32);
+    }
+    /* fundamental markers for active pitched voices */
+    voices.forEach(function (v) {
+      if (v.rate < fMin) return;
+      var x = fx(v.rate);
+      specCtx.fillStyle = roleColor(v.roleClass);
+      specCtx.beginPath(); specCtx.arc(x, H - 34, 6, 0, Math.PI * 2); specCtx.fill();
+    });
+  }
+
+  /* ---------- show clock ---------- */
+  var playing = true, showStart = performance.now(), pausedAt = 0;
+  function showElapsed() {
+    return playing ? (performance.now() - showStart) / 1000 : pausedAt;
+  }
+  function jumpTo(idx) {
+    var acc = 0;
+    for (var i = 0; i < idx; i++) acc += SEGMENTS[i].dur;
+    if (playing) showStart = performance.now() - acc * 1000;
+    else pausedAt = acc;
+    lastVoiceKey = "__force__";
+  }
+  function segAt(elapsed) {
+    var t = elapsed % TOTAL, acc = 0;
+    for (var i = 0; i < SEGMENTS.length; i++) {
+      if (t < acc + SEGMENTS[i].dur) return { idx: i, t: t - acc };
+      acc += SEGMENTS[i].dur;
+    }
+    return { idx: 0, t: 0 };
+  }
+
+  /* ---------- per-frame UI update ---------- */
+  var lastTextUpdate = 0;
+  function frame() {
+    requestAnimationFrame(frame);
+    if (actx && actx.state === "running" && !soundOn) markSoundOn();
+    var elapsed = showElapsed();
+    var pos = segAt(elapsed);
+    var seg = SEGMENTS[pos.idx];
+    var voices = seg.voices(pos.t);
+    currentVoices = voices;
+    if (pos.idx !== currentSegIdx) {
+      currentSegIdx = pos.idx;
+      captionEl.innerHTML = seg.caption;
+    }
+    applyVoices(voices);
+    drawScope(elapsed, voices);
+    drawSpec(voices);
+    updateRuler(voices);
+    updatePiano(voices);
+
+    /* chapters */
+    chapterEls.forEach(function (el, i) {
+      el.classList.toggle("active", i === pos.idx);
+      el.classList.toggle("done", i < pos.idx);
+      var fill = el.querySelector(".fill");
+      fill.style.width = i === pos.idx ? (pos.t / SEGMENTS[i].dur * 100) + "%" : (i < pos.idx ? "100%" : "0%");
+    });
+
+    /* text readouts, throttled */
+    var now = performance.now();
+    if (now - lastTextUpdate > 120) {
+      lastTextUpdate = now;
+      renderVoices(voices);
+      var primary = voices[0];
+      var mm = Math.floor(elapsed % TOTAL / 60), ss = Math.floor(elapsed % TOTAL % 60);
+      showClock.textContent = "loop " + mm + ":" + (ss < 10 ? "0" : "") + ss + " / 1:12";
+      if (seg.kind === "track") {
+        var bar = Math.min(7, Math.floor(pos.t / 2));
+        var p = PROG[bar % 4];
+        var beatInBar = Math.floor((pos.t - bar * 2) / 0.5);
+        bigRate.innerHTML = "";
+        bigRate.innerHTML = '<span class="num" style="font-size:clamp(2.6rem,8vw,4.6rem)">' + p.name + '</span>';
+        bigUnit.textContent = "chord, bar " + (bar + 1) + " of 8";
+        bigNote.textContent = "120 BPM";
+        bigNoteSub.textContent = "Am \u2013 F \u2013 C \u2013 G, one kick per part";
+        zoneTag.textContent = "Full track: rhythm and pitch at once";
+        zoneTag.className = "zone-tag pitch";
+        beatDotsEl.classList.add("show");
+        var dots = beatDotsEl.querySelectorAll(".bd");
+        dots.forEach(function (d, i) { d.classList.toggle("hit", i === beatInBar); });
+        barLabel.textContent = "bar " + (bar + 1) + " of 8 \u00B7 beat " + (beatInBar + 1) + " \u00B7 layers: " + (bar === 0 ? "beat" : bar === 1 ? "beat + bass" : "beat + bass + chords + melody");
+        mathPeriod.textContent = periodStr(primary.rate) + " (the beat)";
+        mathSemi.textContent = "the melody is up at " + fmtHz(voices[voices.length - 1].rate) + " Hz";
+        mathBpm.textContent = "120 BPM";
+      } else {
+        beatDotsEl.classList.remove("show");
+        var f = primary.rate;
+        bigRate.innerHTML = '<span class="num">' + fmtHz(f) + '</span>';
+        bigUnit.textContent = voices.length > 1 ? "hits / sec, per stream" : "hits / sec";
+        var note = freqToNote(f);
+        if (f < 20) {
+          bigNote.textContent = "a beat";
+          bigNoteSub.textContent = "too slow to be a pitch";
+          zoneTag.textContent = "Rhythm: you can count it";
+          zoneTag.className = "zone-tag";
+        } else if (f < 40) {
+          bigNote.textContent = "a flutter";
+          bigNoteSub.textContent = "counting has broken down";
+          zoneTag.textContent = "The blur: rhythm turning into pitch";
+          zoneTag.className = "zone-tag blur";
+        } else {
+          bigNote.textContent = note.name;
+          bigNoteSub.textContent = (voices.length > 1 ? "lowest stream \u00B7 " : "") + "nearest note" + (Math.abs(note.cents) >= 8 ? ", " + (note.cents > 0 ? "+" : "") + note.cents + " cents" : ", right on it");
+          zoneTag.textContent = "Pitch: your ear hears a note";
+          zoneTag.className = "zone-tag pitch";
+        }
+        mathPeriod.textContent = periodStr(f);
+        if (f >= 20) {
+          var semi = 12 * Math.log2(f / 440);
+          mathSemi.textContent = (semi === 0 ? "0" : (semi > 0 ? "+" : "") + (Math.round(semi * 10) / 10)) + " semitones (" + note.name + ")";
+        } else {
+          mathSemi.textContent = "no pitch yet, still under the \u224820 Hz fusion threshold";
+        }
+        mathBpm.textContent = Math.round(f * 60) + " BPM" + (f <= 20 ? "" : " (nobody dances at this tempo)");
+      }
+    }
+  }
+
+  /* ---------- controls ---------- */
+  $("pauseBtn").addEventListener("click", function () {
+    if (playing) { pausedAt = showElapsed(); playing = false; this.textContent = "Play"; }
+    else { showStart = performance.now() - pausedAt * 1000; playing = true; this.textContent = "Pause"; }
+  });
+  $("restartBtn").addEventListener("click", function () { jumpTo(0); });
+  $("soundBtn").addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (soundOn) disableSound(); else enableSound();
+  });
+  /* the "no buttons" unlock: first tap or keypress anywhere starts the audio */
+  function firstGesture() {
+    if (!soundOn) enableSound();
+    document.removeEventListener("pointerdown", firstGesture);
+  }
+  document.addEventListener("pointerdown", firstGesture);
+  document.addEventListener("keydown", function () { if (!soundOn) enableSound(); });
+  $("soundBanner").addEventListener("click", function () { enableSound(); });
+
+  captionEl.innerHTML = SEGMENTS[0].caption;
+  initAudio(); /* creates a suspended context in most browsers; the first tap anywhere resumes it. Visuals run regardless. */
+  requestAnimationFrame(frame);
+  </script>
+  </body>
+</html>
